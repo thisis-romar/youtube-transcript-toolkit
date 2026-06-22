@@ -18,8 +18,9 @@ Options:
     --cookies FILE     Netscape cookies.txt for age/region/PO-token gated videos.
     --no-check-certs   Pass --no-check-certificates (needed behind TLS-intercepting proxies).
     --out FILE         Write to FILE instead of stdout.
+    --raw-out FILE     Also copy the downloaded json3 caption payload to FILE.
 
-Exit codes: 0 ok | 2 no captions | 3 rate-limited after retries | 4 yt-dlp missing
+Exit codes: 0 ok | 2 no captions | 3 rate-limited after retries | 4 yt-dlp missing | 5 network error | 6 auth required
 """
 import argparse, json, os, re, shutil, subprocess, sys, tempfile, time
 
@@ -71,8 +72,24 @@ def run_ytdlp(vid, lang, tmp, proxy, cookies, no_check_certs):
         if "No supported JavaScript runtime" in err:
             print(f"Note: no JS runtime found; install {JS_RUNTIME_HINT} for robust "
                   "extraction. Continuing.", file=sys.stderr)
-        # No subs and not a 429 -> give yt-dlp's reason once and stop.
-        if attempt == 1 and ("no subtitles" in err.lower() or "available" not in err.lower()):
+        err_lower = err.lower()
+        if any(token in err_lower for token in (
+            "sign in to confirm", "login", "private video", "members-only",
+            "age-restricted", "not available in your country", "cookies"
+        )):
+            sys.stderr.write(err)
+            print("Authentication, age, region, or cookie-gated video. Use --cookies.", file=sys.stderr)
+            sys.exit(6)
+        if any(token in err_lower for token in (
+            "unable to download", "urlopen error", "proxyerror", "tunnel connection failed",
+            "temporary failure in name resolution", "name or service not known",
+            "network is unreachable", "connection refused", "connection reset", "timed out"
+        )):
+            sys.stderr.write(err)
+            print("Network error while contacting YouTube. Check worker egress, DNS, proxy, or certificates.", file=sys.stderr)
+            sys.exit(5)
+        # No subs and not a network/auth/429 failure -> give yt-dlp's reason once and stop.
+        if attempt == 1 and ("no subtitles" in err_lower or "available" not in err_lower):
             sys.stderr.write(err)
         break
     return None
@@ -106,6 +123,7 @@ def main():
     ap.add_argument("--cookies")
     ap.add_argument("--no-check-certs", action="store_true")
     ap.add_argument("--out")
+    ap.add_argument("--raw-out", help="Copy downloaded json3 captions to FILE")
     a = ap.parse_args()
 
     vid = video_id(a.url)
@@ -115,6 +133,8 @@ def main():
             print(f"No captions retrieved for {vid}.", file=sys.stderr)
             sys.exit(2)
         out = parse_json3(sub, a.timestamps)
+        if a.raw_out:
+            shutil.copyfile(sub, a.raw_out)
 
     if a.out:
         open(a.out, "w", encoding="utf-8").write(out + "\n")
