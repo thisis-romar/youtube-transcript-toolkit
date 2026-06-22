@@ -148,6 +148,3 @@ youtube-transcript-toolkit/
             └── process_transcript.py
 ```
 
----
-
-MIT licensed.
