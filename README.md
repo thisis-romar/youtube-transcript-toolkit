@@ -11,6 +11,46 @@ Two tools, one repo — pick the one that matches your surface:
 
 ---
 
+## Worker-first architecture
+
+ChatGPT or Claude should orchestrate transcript fetching rather than run the
+network fetch directly from a restricted chat sandbox. The repository now
+includes a GitHub Actions worker and local pipeline runner that fetch captions,
+process them, and publish stable artifacts for the assistant to inspect.
+
+```text
+ChatGPT / Claude -> GitHub workflow or worker API -> yt-dlp worker -> outputs/ artifacts
+```
+
+Run the pipeline locally from a network-capable host:
+
+```bash
+python3 tools/run_pipeline.py 'https://youtu.be/DcvgPEApHT8' --lang en --timestamps
+```
+
+Or dispatch `.github/workflows/fetch-transcript.yml` with `youtube_url`, `lang`,
+`timestamps`, and rollout `stage` inputs. Start with `stage=fetch` for the
+minimal client smoke test, then use `stage=all` after artifact retrieval works.
+Configure `TRANSCRIPT_PROXY_URL` and
+`YOUTUBE_COOKIES_TXT` repository secrets for 429, age-gated, region-gated, or
+authenticated videos. Each run writes an artifact contract under `outputs/`:
+
+```text
+VIDEO_ID.raw.json3
+VIDEO_ID.timestamped.txt
+VIDEO_ID.clean.txt
+VIDEO_ID.segments.md
+VIDEO_ID.metadata.json
+VIDEO_ID.fetch.log
+VIDEO_ID.exit_code.txt
+```
+
+See `docs/architecture.md`, `docs/rollout.md`, `docs/operations.md`, and
+`docs/failure-modes.md` for the worker pattern, staged rollout, and operational
+details.
+
+---
+
 ## Claude Code — fetch plugin
 
 Fetches the spoken transcript of any YouTube video or Short. Built to survive
@@ -87,6 +127,10 @@ VTT · SRT · json3 · `[HH:MM:SS]` bracketed · plain text
 ## Repo layout
 ```
 youtube-transcript-toolkit/
+├── .github/workflows/fetch-transcript.yml
+├── docs/
+├── tools/
+├── outputs/
 ├── .claude-plugin/
 │   └── marketplace.json          ← Claude Code marketplace entry
 ├── plugins/
