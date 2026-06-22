@@ -1,0 +1,108 @@
+name: Fetch transcript
+
+on:
+  workflow_dispatch:
+    inputs:
+      youtube_url:
+        description: YouTube URL or 11-character video ID
+        required: true
+        type: string
+      lang:
+        description: Caption language prefix
+        required: false
+        default: en
+        type: string
+      timestamps:
+        description: Emit timestamped transcript output
+        required: false
+        default: true
+        type: boolean
+      no_check_certs:
+        description: Disable TLS certificate checks for intercepted networks
+        required: false
+        default: false
+        type: boolean
+      stage:
+        description: Rollout stage to run
+        required: false
+        default: fetch
+        type: choice
+        options:
+          - fetch
+          - all
+
+jobs:
+  fetch-transcript:
+    name: Network-capable transcript worker
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      FETCH_RUNTIME: github_actions
+      TRANSCRIPT_PROXY_URL: ${{ secrets.TRANSCRIPT_PROXY_URL }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install fetch dependencies
+        run: python -m pip install --upgrade yt-dlp
+
+      - name: Prepare optional cookies secret
+        id: cookies
+        shell: bash
+        env:
+          YOUTUBE_COOKIES_TXT: ${{ secrets.YOUTUBE_COOKIES_TXT }}
+        run: |
+          if [[ -n "${YOUTUBE_COOKIES_TXT}" ]]; then
+            umask 077
+            printf '%s' "${YOUTUBE_COOKIES_TXT}" > cookies.txt
+            echo "args=--cookies cookies.txt" >> "$GITHUB_OUTPUT"
+          else
+            echo "args=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run transcript pipeline
+        id: pipeline
+        shell: bash
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          TIMESTAMP_ARGS="--timestamps"
+          if [[ "${{ inputs.timestamps }}" != "true" ]]; then
+            TIMESTAMP_ARGS="--no-timestamps"
+          fi
+          CERT_ARGS=""
+          if [[ "${{ inputs.no_check_certs }}" == "true" ]]; then
+            CERT_ARGS="--no-check-certs"
+          fi
+          set +e
+          python tools/run_pipeline.py \
+            "${{ inputs.youtube_url }}" \
+            --lang "${{ inputs.lang }}" \
+            ${TIMESTAMP_ARGS} \
+            ${{ steps.cookies.outputs.args }} \
+            ${CERT_ARGS} \
+            --fetch-runtime github_actions \
+            --stage "${{ inputs.stage }}"
+          code=$?
+          set -e
+          echo "exit_code=${code}" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Upload transcript artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: transcript-${{ github.run_id }}
+          path: outputs/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Fail when pipeline failed
+        if: steps.pipeline.outputs.exit_code != '0'
+        run: exit '${{ steps.pipeline.outputs.exit_code }}'
