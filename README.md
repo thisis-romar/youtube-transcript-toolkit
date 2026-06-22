@@ -91,6 +91,8 @@ python3 plugins/youtube-transcript/skills/youtube-transcript/scripts/fetch_trans
   tracks; default clients return zero.
 - Exit code 3 (HTTP 429) means the host IP is rate-limited.
   Use `--proxy <residential>` or `--cookies cookies.txt`.
+- Exit code 5 means the worker could not reach YouTube or its API through the
+  current DNS, egress, proxy, or certificate configuration.
 - Behind a TLS-intercepting proxy: `--no-check-certs`.
 
 ---
@@ -148,4 +150,3 @@ youtube-transcript-toolkit/
         └── scripts/
             └── process_transcript.py
 ```
-

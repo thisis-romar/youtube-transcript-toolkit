@@ -23,6 +23,7 @@ STATUS_BY_EXIT = {
     2: "no_captions",
     3: "rate_limited",
     4: "tool_missing",
+    5: "network_error",
 }
 
 

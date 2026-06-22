@@ -20,11 +20,34 @@ Options:
     --out FILE         Write to FILE instead of stdout.
     --raw-out FILE     Also copy the downloaded json3 caption payload to FILE.
 
-Exit codes: 0 ok | 2 no captions | 3 rate-limited after retries | 4 yt-dlp missing
+Exit codes: 0 ok | 2 no captions | 3 rate-limited after retries | 4 yt-dlp missing | 5 network error
 """
 import argparse, json, os, re, shutil, subprocess, sys, tempfile, time
 
 JS_RUNTIME_HINT = "deno"  # install for clean extraction: `curl -fsSL https://deno.land/install.sh | sh`
+
+
+def is_network_error(stderr: str) -> bool:
+    """Return True when yt-dlp failed before caption availability was known."""
+    s = stderr.lower()
+    indicators = (
+        "network is unreachable",
+        "name or service not known",
+        "temporary failure in name resolution",
+        "unable to download webpage",
+        "unable to download api page",
+        "urlopen error",
+        "proxyerror",
+        "proxy error",
+        "tunnel connection failed",
+        "connection refused",
+        "connection reset",
+        "timed out",
+        "timeout",
+        "ssl:",
+        "certificate verify failed",
+    )
+    return any(indicator in s for indicator in indicators)
 
 
 def video_id(s: str) -> str:
@@ -69,6 +92,11 @@ def run_ytdlp(vid, lang, tmp, proxy, cookies, no_check_certs):
                 sys.exit(3)
             print(f"[429] backing off {backoff}s (attempt {attempt}/3)", file=sys.stderr)
             time.sleep(backoff); backoff *= 2; continue
+        if is_network_error(err):
+            sys.stderr.write(err)
+            print("Network error before captions could be checked. Check DNS, egress, "
+                  "proxy, and certificate settings.", file=sys.stderr)
+            sys.exit(5)
         if "No supported JavaScript runtime" in err:
             print(f"Note: no JS runtime found; install {JS_RUNTIME_HINT} for robust "
                   "extraction. Continuing.", file=sys.stderr)
