@@ -12,3 +12,9 @@
 
 The workflow always uploads artifacts on failure so the caller can inspect logs
 without re-running blindly.
+
+For a worked root-cause analysis across environments (DNS-blocked sandboxes, TLS
+interception, datacenter bot-gate, 429) and the exit-code-first triage path, see
+[`triage-rca.md`](triage-rca.md). Rule of thumb: **read the exit code first** — exit 5
+with a DNS message means the host has no egress and must delegate to the Actions worker
+rather than retrying locally.
