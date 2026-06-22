@@ -1,0 +1,64 @@
+name: Fetch transcript DcvgPEApHT8
+
+on:
+  push:
+    paths:
+      - .github/workflows/fetch-transcript-DcvgPEApHT8.yml
+  workflow_dispatch:
+    inputs:
+      youtube_url:
+        description: YouTube URL or video ID
+        required: true
+        default: https://youtu.be/DcvgPEApHT8?si=jHJ6EZPwrBHNFpPi
+      lang:
+        description: Preferred caption language prefix
+        required: true
+        default: en
+
+permissions:
+  contents: read
+
+jobs:
+  fetch-transcript:
+    runs-on: ubuntu-latest
+    env:
+      YOUTUBE_URL: ${{ github.event.inputs.youtube_url || 'https://youtu.be/DcvgPEApHT8?si=jHJ6EZPwrBHNFpPi' }}
+      LANG_PREFIX: ${{ github.event.inputs.lang || 'en' }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install yt-dlp
+        run: python -m pip install --upgrade yt-dlp
+
+      - name: Fetch transcript with toolkit plugin
+        id: fetch
+        shell: bash
+        run: |
+          set +e
+          mkdir -p outputs
+          python3 plugins/youtube-transcript/skills/youtube-transcript/scripts/fetch_transcript.py \
+            "$YOUTUBE_URL" \
+            --lang "$LANG_PREFIX" \
+            --timestamps \
+            --out outputs/DcvgPEApHT8_transcript_timestamped.txt \
+            > outputs/fetch_stdout.log \
+            2> outputs/fetch_stderr.log
+          status=$?
+          echo "$status" > outputs/exit_code.txt
+          if [ "$status" -ne 0 ]; then
+            echo "Transcript fetch failed with exit code $status" >> outputs/fetch_stderr.log
+          fi
+          exit 0
+
+      - name: Upload transcript artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: transcript-DcvgPEApHT8
+          path: outputs/
+          if-no-files-found: error
