@@ -18,6 +18,7 @@ Options:
     --cookies FILE     Netscape cookies.txt for age/region/PO-token gated videos.
     --no-check-certs   Pass --no-check-certificates (needed behind TLS-intercepting proxies).
     --out FILE         Write to FILE instead of stdout.
+    --raw-out FILE     Also copy the downloaded json3 caption payload to FILE.
 
 Exit codes: 0 ok | 2 no captions | 3 rate-limited after retries | 4 yt-dlp missing
 """
@@ -106,6 +107,7 @@ def main():
     ap.add_argument("--cookies")
     ap.add_argument("--no-check-certs", action="store_true")
     ap.add_argument("--out")
+    ap.add_argument("--raw-out", help="Copy downloaded json3 captions to FILE")
     a = ap.parse_args()
 
     vid = video_id(a.url)
@@ -115,6 +117,8 @@ def main():
             print(f"No captions retrieved for {vid}.", file=sys.stderr)
             sys.exit(2)
         out = parse_json3(sub, a.timestamps)
+        if a.raw_out:
+            shutil.copyfile(sub, a.raw_out)
 
     if a.out:
         open(a.out, "w", encoding="utf-8").write(out + "\n")
