@@ -72,3 +72,42 @@ status record:
 - `failed` - `metadata.json` status is any non-success value.
 
 A future issue-based queue can mirror these states with labels and comments.
+
+## Sample command reference
+
+Use the pipeline command below for the sample URL when running from a
+network-capable host. The `stage` flag is optional for local runs because the
+pipeline defaults to the full `all` stage.
+
+```bash
+python3 tools/run_pipeline.py 'https://youtu.be/DcvgPEApHT8?si=jHJ6EZPwrBHNFpPi' --lang en --timestamps
+```
+
+The README shows the same video without YouTube's optional tracking parameter:
+
+```bash
+python3 tools/run_pipeline.py 'https://youtu.be/DcvgPEApHT8' --lang en --timestamps
+```
+
+The lower-level plugin command that the pipeline wraps is:
+
+```bash
+python3 plugins/youtube-transcript/skills/youtube-transcript/scripts/fetch_transcript.py \
+  'https://youtu.be/DcvgPEApHT8?si=jHJ6EZPwrBHNFpPi' \
+  --timestamps \
+  --lang en \
+  --out outputs/DcvgPEApHT8.timestamped.txt \
+  --raw-out outputs/DcvgPEApHT8.raw.json3
+```
+
+For the sample video, the full pipeline artifact contains these paths:
+
+```text
+outputs/DcvgPEApHT8.raw.json3
+outputs/DcvgPEApHT8.timestamped.txt
+outputs/DcvgPEApHT8.clean.txt
+outputs/DcvgPEApHT8.segments.md
+outputs/DcvgPEApHT8.metadata.json
+outputs/DcvgPEApHT8.fetch.log
+outputs/DcvgPEApHT8.exit_code.txt
+```
