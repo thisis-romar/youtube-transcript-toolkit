@@ -1,0 +1,8 @@
+{
+  "name": "youtube-transcript",
+  "version": "1.0.0",
+  "description": "Fetch the spoken transcript (captions) of any YouTube video or Short. Resilient to caption-track stripping and timedtext 429 rate limits.",
+  "author": { "name": "thisis-romar" },
+  "keywords": ["youtube", "transcript", "captions", "subtitles", "yt-dlp"],
+  "license": "MIT"
+}

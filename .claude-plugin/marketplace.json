@@ -1,0 +1,13 @@
+{
+  "name": "romar-tools",
+  "owner": { "name": "thisis-romar", "email": "admin+claude-plugins@emblemprojects.com" },
+  "plugins": [
+    {
+      "name": "youtube-transcript",
+      "source": "./plugins/youtube-transcript",
+      "description": "Fetch the spoken transcript of any YouTube video or Short inside Claude Code.",
+      "version": "1.0.0",
+      "author": { "name": "thisis-romar" }
+    }
+  ]
+}
