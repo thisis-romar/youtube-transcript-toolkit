@@ -29,11 +29,25 @@ python3 tools/run_pipeline.py 'https://youtu.be/DcvgPEApHT8' --lang en --timesta
 ```
 
 Or dispatch `.github/workflows/fetch-transcript.yml` with `youtube_url`, `lang`,
-`timestamps`, and rollout `stage` inputs. Start with `stage=fetch` for the
-minimal client smoke test, then use `stage=all` after artifact retrieval works.
+`timestamps`, `no_check_certs`, and rollout `stage` inputs. Start with
+`stage=fetch` for the minimal client smoke test, then use `stage=all` after
+artifact retrieval works. For the sample video, the worker-first smoke-test
+inputs are:
+
+```yaml
+youtube_url: "https://youtu.be/DcvgPEApHT8?si=jHJ6EZPwrBHNFpPi"
+lang: "en"
+timestamps: true
+no_check_certs: false
+stage: "fetch"
+```
+
 Configure `TRANSCRIPT_PROXY_URL` and
 `YOUTUBE_COOKIES_TXT` repository secrets for 429, age-gated, region-gated, or
-authenticated videos. Each run writes an artifact contract under `outputs/`:
+authenticated videos. The fetch stage writes the raw transcript, timestamped
+transcript, metadata, log, and exit-code files; the full `stage=all` pipeline
+adds the cleaned and segmented outputs. A full run writes this artifact contract
+under `outputs/`:
 
 ```text
 VIDEO_ID.raw.json3
@@ -83,7 +97,8 @@ curl -fsSL https://deno.land/install.sh | sh
 ```bash
 # Claude invokes it automatically, or run directly:
 python3 plugins/youtube-transcript/skills/youtube-transcript/scripts/fetch_transcript.py \
-    https://youtube.com/shorts/doW4vHDR9JA --timestamps
+    "https://youtu.be/DcvgPEApHT8?si=jHJ6EZPwrBHNFpPi" \
+    --timestamps
 ```
 
 ### Reliability notes
