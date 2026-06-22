@@ -1,0 +1,9 @@
+# Secrets / credentials — never commit
+cookies.txt
+*.cookies.txt
+.env
+
+# Python / scratch
+__pycache__/
+*.pyc
+*.json3

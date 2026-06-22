@@ -109,6 +109,10 @@ python3 plugins/youtube-transcript/skills/youtube-transcript/scripts/fetch_trans
 - Exit code 5 means the worker could not reach YouTube or its API through the
   current DNS, egress, proxy, or certificate configuration.
 - Behind a TLS-intercepting proxy: `--no-check-certs`.
+- **Set credentials once** instead of per-call: `YT_TRANSCRIPT_PROXY`,
+  `YT_TRANSCRIPT_COOKIES`, `YT_TRANSCRIPT_NO_CHECK_CERTS=1` (or drop a `cookies.txt`
+  beside the script / in `${CLAUDE_PLUGIN_ROOT}`). See the plugin SKILL.md. Secrets are
+  git-ignored and never embedded. For zero-touch use, run the `mcp-server/` wrapper.
 
 ---
 

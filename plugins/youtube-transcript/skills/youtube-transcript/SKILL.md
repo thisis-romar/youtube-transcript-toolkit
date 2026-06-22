@@ -19,6 +19,23 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/youtube-transcript/scripts/fetch_transcript
 - Recommended: `deno` JS runtime for clean extraction.
 - Behind a TLS-intercepting proxy, pass `--no-check-certs`.
 
+## Credentials (set once, auto-applied)
+From a datacenter IP YouTube often bot-gates or 429s. Rather than re-passing flags every
+call, configure credentials once — the script resolves them with precedence
+**flag > env var > file**:
+
+| Env var | Effect | Flag equivalent |
+|---|---|---|
+| `YT_TRANSCRIPT_PROXY` (or `HTTPS_PROXY`) | route via proxy | `--proxy` |
+| `YT_TRANSCRIPT_COOKIES` | path to a Netscape `cookies.txt` | `--cookies` |
+| `YT_TRANSCRIPT_NO_CHECK_CERTS=1` | disable cert checks | `--no-check-certs` |
+
+A `cookies.txt` dropped in `${CLAUDE_PLUGIN_ROOT}` or beside the script is auto-detected.
+
+**Security:** secrets are read from the environment/files only — never hard-code or commit
+them. `cookies.txt`/`.env` are git-ignored. For the MCP server (`mcp-server/`), set these on
+the server's launch env so they never appear at the call site.
+
 ## Why naive approaches break
 1. Parsing `ytInitialPlayerResponse` from HTML returns empty `captionTracks`. Never do this.
 2. Default web/android InnerTube clients return zero tracks. Script forces

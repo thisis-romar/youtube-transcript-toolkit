@@ -20,11 +20,58 @@ Options:
     --out FILE         Write to FILE instead of stdout.
     --raw-out FILE     Also copy the downloaded json3 caption payload to FILE.
 
+Credentials can be set once instead of passed each call (precedence: flag > env > file):
+    YT_TRANSCRIPT_PROXY          proxy URL                (fallback: HTTPS_PROXY)
+    YT_TRANSCRIPT_COOKIES        path to a cookies.txt
+    YT_TRANSCRIPT_NO_CHECK_CERTS truthy (1/true/yes) to disable cert checks
+A cookies.txt placed in ${CLAUDE_PLUGIN_ROOT} or beside this script is auto-detected.
+Secrets are read from the environment/files only — never hard-code them here or commit them.
+
 Exit codes: 0 ok | 2 no captions | 3 rate-limited after retries | 4 yt-dlp missing | 5 network error
 """
 import argparse, json, os, re, shutil, subprocess, sys, tempfile, time
 
 JS_RUNTIME_HINT = "deno"  # install for clean extraction: `curl -fsSL https://deno.land/install.sh | sh`
+
+
+def env_truthy(name: str) -> bool:
+    return os.environ.get(name, "").strip().lower() in ("1", "true", "yes", "on")
+
+
+def autodetect_cookies():
+    """Look for a cookies.txt in predictable, intentional locations (not CWD)."""
+    candidates = []
+    root = os.environ.get("CLAUDE_PLUGIN_ROOT")
+    if root:
+        candidates.append(os.path.join(root, "cookies.txt"))
+    candidates.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "cookies.txt"))
+    for path in candidates:
+        if os.path.isfile(path):
+            return path
+    return None
+
+
+def resolve_credentials(a):
+    """Resolve proxy/cookies/no_check_certs with precedence: flag > env var > file > default.
+    Logs the source (never the secret value) to stderr."""
+    proxy = a.proxy or os.environ.get("YT_TRANSCRIPT_PROXY") or os.environ.get("HTTPS_PROXY")
+    if proxy and not a.proxy:
+        print("using proxy from environment", file=sys.stderr)
+
+    cookies = a.cookies or os.environ.get("YT_TRANSCRIPT_COOKIES")
+    cookie_src = "flag" if a.cookies else ("env" if cookies else None)
+    if not cookies:
+        cookies = autodetect_cookies()
+        if cookies:
+            cookie_src = "auto-detected file"
+    if cookies and cookie_src != "flag":
+        print(f"using cookies from {cookie_src}: {cookies}", file=sys.stderr)
+
+    no_check_certs = a.no_check_certs or env_truthy("YT_TRANSCRIPT_NO_CHECK_CERTS")
+    if no_check_certs and not a.no_check_certs:
+        print("disabling cert checks from $YT_TRANSCRIPT_NO_CHECK_CERTS", file=sys.stderr)
+
+    return proxy, cookies, no_check_certs
 
 
 def is_network_error(stderr: str) -> bool:
@@ -138,9 +185,11 @@ def main():
     ap.add_argument("--raw-out", help="Copy downloaded json3 captions to FILE")
     a = ap.parse_args()
 
+    proxy, cookies, no_check_certs = resolve_credentials(a)
+
     vid = video_id(a.url)
     with tempfile.TemporaryDirectory() as tmp:
-        sub = run_ytdlp(vid, a.lang, tmp, a.proxy, a.cookies, a.no_check_certs)
+        sub = run_ytdlp(vid, a.lang, tmp, proxy, cookies, no_check_certs)
         if not sub:
             print(f"No captions retrieved for {vid}.", file=sys.stderr)
             sys.exit(2)
