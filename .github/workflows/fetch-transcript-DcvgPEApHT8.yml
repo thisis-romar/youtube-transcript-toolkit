@@ -24,6 +24,7 @@ jobs:
     env:
       YOUTUBE_URL: ${{ github.event.inputs.youtube_url || 'https://youtu.be/DcvgPEApHT8?si=jHJ6EZPwrBHNFpPi' }}
       LANG_PREFIX: ${{ github.event.inputs.lang || 'en' }}
+      REQUEST_VIDEO_ID: DcvgPEApHT8
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
