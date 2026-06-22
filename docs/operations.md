@@ -9,14 +9,14 @@
 5. Download the `transcript-<run_id>` artifact after the run finishes.
 6. Inspect `VIDEO_ID.metadata.json` first, then read transcript outputs.
 
-For example, use these workflow inputs to fetch and process the sample video:
+For example, use these workflow inputs to smoke-test fetching the sample video:
 
 | Input | Value |
 |---|---|
 | `youtube_url` | `https://youtu.be/DcvgPEApHT8?si=jHJ6EZPwrBHNFpPi` |
 | `lang` | `en` |
 | `timestamps` | `true` |
-| `stage` | `all` |
+| `stage` | `fetch` |
 
 ## Restricted chat or container runtimes
 
@@ -34,7 +34,7 @@ The worker command for the sample video is:
 python3 tools/run_pipeline.py 'https://youtu.be/DcvgPEApHT8?si=jHJ6EZPwrBHNFpPi' --lang en --timestamps --stage all
 ```
 
-When `stage=all` succeeds, the artifact contains this contract:
+The smoke-test `stage=fetch` path writes `raw.json3`, `timestamped.txt`, `metadata.json`, `fetch.log`, and `exit_code.txt`. When `stage=all` succeeds, the artifact also contains the processed transcript files and matches this full contract:
 
 ```text
 DcvgPEApHT8.raw.json3
@@ -47,6 +47,8 @@ DcvgPEApHT8.exit_code.txt
 ```
 
 ## Local worker run
+
+The README-recommended local path runs the full pipeline by default:
 
 ```bash
 python3 tools/run_pipeline.py 'https://youtu.be/DcvgPEApHT8' --lang en --timestamps
