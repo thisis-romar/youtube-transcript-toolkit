@@ -46,8 +46,9 @@ VIDEO_ID.exit_code.txt
 ```
 
 See `docs/architecture.md`, `docs/rollout.md`, `docs/operations.md`, and
-`docs/failure-modes.md` for the worker pattern, staged rollout, and operational
-details.
+`docs/failure-modes.md` for the worker pattern, staged rollout, operational
+details, and the fallback path for restricted chat/container runtimes that
+cannot directly dispatch GitHub Actions or run `yt-dlp`.
 
 ---
 
