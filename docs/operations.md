@@ -28,39 +28,22 @@ GitHub Actions worker from the GitHub UI, or run the local command below from a
 network-capable host, then upload or paste one of the output artifacts back into
 the chat for downstream processing.
 
-The pipeline command for the sample URL is:
+The worker command for the sample video is:
 
 ```bash
-python3 tools/run_pipeline.py 'https://youtu.be/DcvgPEApHT8?si=jHJ6EZPwrBHNFpPi' --lang en --timestamps
+python3 tools/run_pipeline.py 'https://youtu.be/DcvgPEApHT8?si=jHJ6EZPwrBHNFpPi' --lang en --timestamps --stage all
 ```
 
-The README uses the same video without the optional YouTube tracking parameter:
-
-```bash
-python3 tools/run_pipeline.py 'https://youtu.be/DcvgPEApHT8' --lang en --timestamps
-```
-
-The lower-level plugin command that the pipeline wraps is:
-
-```bash
-python3 plugins/youtube-transcript/skills/youtube-transcript/scripts/fetch_transcript.py \
-  'https://youtu.be/DcvgPEApHT8?si=jHJ6EZPwrBHNFpPi' \
-  --timestamps \
-  --lang en \
-  --out outputs/DcvgPEApHT8.timestamped.txt \
-  --raw-out outputs/DcvgPEApHT8.raw.json3
-```
-
-When the full pipeline succeeds, the artifact contains this contract:
+When `stage=all` succeeds, the artifact contains this contract:
 
 ```text
-outputs/DcvgPEApHT8.raw.json3
-outputs/DcvgPEApHT8.timestamped.txt
-outputs/DcvgPEApHT8.clean.txt
-outputs/DcvgPEApHT8.segments.md
-outputs/DcvgPEApHT8.metadata.json
-outputs/DcvgPEApHT8.fetch.log
-outputs/DcvgPEApHT8.exit_code.txt
+DcvgPEApHT8.raw.json3
+DcvgPEApHT8.timestamped.txt
+DcvgPEApHT8.clean.txt
+DcvgPEApHT8.segments.md
+DcvgPEApHT8.metadata.json
+DcvgPEApHT8.fetch.log
+DcvgPEApHT8.exit_code.txt
 ```
 
 ## Local worker run
@@ -89,3 +72,42 @@ status record:
 - `failed` - `metadata.json` status is any non-success value.
 
 A future issue-based queue can mirror these states with labels and comments.
+
+## Sample command reference
+
+Use the pipeline command below for the sample URL when running from a
+network-capable host. The `stage` flag is optional for local runs because the
+pipeline defaults to the full `all` stage.
+
+```bash
+python3 tools/run_pipeline.py 'https://youtu.be/DcvgPEApHT8?si=jHJ6EZPwrBHNFpPi' --lang en --timestamps
+```
+
+The README shows the same video without YouTube's optional tracking parameter:
+
+```bash
+python3 tools/run_pipeline.py 'https://youtu.be/DcvgPEApHT8' --lang en --timestamps
+```
+
+The lower-level plugin command that the pipeline wraps is:
+
+```bash
+python3 plugins/youtube-transcript/skills/youtube-transcript/scripts/fetch_transcript.py \
+  'https://youtu.be/DcvgPEApHT8?si=jHJ6EZPwrBHNFpPi' \
+  --timestamps \
+  --lang en \
+  --out outputs/DcvgPEApHT8.timestamped.txt \
+  --raw-out outputs/DcvgPEApHT8.raw.json3
+```
+
+For the sample video, the full pipeline artifact contains these paths:
+
+```text
+outputs/DcvgPEApHT8.raw.json3
+outputs/DcvgPEApHT8.timestamped.txt
+outputs/DcvgPEApHT8.clean.txt
+outputs/DcvgPEApHT8.segments.md
+outputs/DcvgPEApHT8.metadata.json
+outputs/DcvgPEApHT8.fetch.log
+outputs/DcvgPEApHT8.exit_code.txt
+```
