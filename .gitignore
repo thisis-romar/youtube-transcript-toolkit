@@ -7,3 +7,6 @@ cookies.txt
 __pycache__/
 *.pyc
 *.json3
+
+# Build artifacts
+youtube_mcp_plugin.zip
