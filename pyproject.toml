@@ -1,0 +1,15 @@
+# Tooling config only (not a packaged project).
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["outputs", "docs", ".github"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+# E501 (line length): scripts embed long URLs/strings.
+# E701/E702 (compound statements): a deliberate style used across these CLIs.
+ignore = ["E501", "E701", "E702"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
