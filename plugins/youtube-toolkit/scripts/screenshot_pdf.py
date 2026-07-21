@@ -19,7 +19,11 @@ Usage:
 
 Exit codes mirror video_frames.py (3 = blocked IP, 4 = missing tool, 5 = other).
 """
-import argparse, json, os, subprocess, sys
+import argparse
+import json
+import os
+import subprocess
+import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)

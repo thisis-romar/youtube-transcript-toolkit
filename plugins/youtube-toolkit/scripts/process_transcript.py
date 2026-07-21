@@ -25,8 +25,10 @@ Options:
 
 Exit codes: 0 ok | 1 empty/unparseable input
 """
-import argparse, json, re, sys
-
+import argparse
+import json
+import re
+import sys
 
 # ---------- parsing: each parser returns list[(start_seconds: float, text: str)] ----------
 
@@ -50,7 +52,7 @@ def parse_vtt(raw):
     out = []
     cue_re = re.compile(r"(\d{1,2}):(\d{2}):(\d{2})[.,](\d{1,3})\s*-->")
     lines = raw.splitlines()
-    i, start = 0, None
+    start = None
     buf = []
     def flush():
         if start is not None and buf:

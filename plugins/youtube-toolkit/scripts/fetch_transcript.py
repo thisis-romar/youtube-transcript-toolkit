@@ -23,7 +23,15 @@ Options:
 See resources/unblocking-youtube.md for the credential/env setup.
 Exit codes: 0 ok | 2 no captions | 3 rate-limited after retries | 4 yt-dlp missing | 5 network error
 """
-import argparse, json, os, re, shutil, subprocess, sys, tempfile, time
+import argparse
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import ytdlp_access as access  # noqa: E402

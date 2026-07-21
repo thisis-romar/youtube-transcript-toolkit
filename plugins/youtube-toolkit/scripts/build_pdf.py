@@ -6,15 +6,17 @@ layout is the single source of truth for the recap PDF, reused by
 screenshot_pdf.py, the MCP server, and the build_zip package.
 """
 from __future__ import annotations
-import json, os, sys
+
+import json
+import os
+import sys
 
 
 def build_pdf(items, out_path, title="YouTube Video Timestamped Recap", subtitle=None):
-    from reportlab.lib.pagesizes import letter
     from reportlab.lib import colors
-    from reportlab.platypus import (SimpleDocTemplate, Paragraph, Spacer, Image,
-                                    HRFlowable)
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.pagesizes import letter
+    from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+    from reportlab.platypus import HRFlowable, Image, Paragraph, SimpleDocTemplate, Spacer
 
     styles = getSampleStyleSheet()
     title_style = ParagraphStyle('DocTitle', parent=styles['Heading1'], fontSize=18, leading=22, textColor=colors.HexColor("#1A365D"))

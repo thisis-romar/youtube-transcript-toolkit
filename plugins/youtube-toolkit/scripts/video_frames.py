@@ -23,7 +23,12 @@ Options:
 Prints, one per line: `<timestamp_seconds>\t<frame_path>` for each captured frame.
 Exit codes: 0 ok | 3 no video formats (blocked IP) | 4 yt-dlp/ffmpeg missing | 5 network/other
 """
-import argparse, os, shutil, subprocess, sys, glob
+import argparse
+import glob
+import os
+import shutil
+import subprocess
+import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import ytdlp_access as access  # noqa: E402

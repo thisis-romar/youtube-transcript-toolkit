@@ -18,13 +18,17 @@ if [ "${CLAUDE_CODE_REMOTE:-}" != "true" ]; then
   exit 0
 fi
 
+# Async: start the session immediately; install in the background.
+echo '{"async": true, "asyncTimeout": 300000}'
+
 log() { echo "[session-start] $*" >&2; }
 
 # --- Python deps -----------------------------------------------------------
 PIP="python3 -m pip install --quiet --disable-pip-version-check"
-log "installing Python deps (yt-dlp, reportlab, imageio-ffmpeg, bgutil plugin)..."
-$PIP yt-dlp reportlab imageio-ffmpeg bgutil-ytdlp-pot-provider \
-  || $PIP --break-system-packages yt-dlp reportlab imageio-ffmpeg bgutil-ytdlp-pot-provider \
+DEPS="yt-dlp reportlab imageio-ffmpeg bgutil-ytdlp-pot-provider ruff pytest"
+log "installing Python deps ($DEPS)..."
+$PIP $DEPS \
+  || $PIP --break-system-packages $DEPS \
   || log "WARN: pip install had errors (continuing)"
 
 # --- deno (JS runtime for the EJS solver) ----------------------------------
