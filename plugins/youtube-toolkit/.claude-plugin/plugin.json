@@ -1,0 +1,8 @@
+{
+  "name": "youtube-toolkit",
+  "version": "2.0.0",
+  "description": "Fetch YouTube transcripts, clean/segment them, and capture timestamped screenshots into a recap PDF. Auto-wires the modern access stack (deno + EJS solver, bgutil po_token provider, cookies/proxy) to survive po_token/DRM (403), n-challenge, and datacenter-IP (429) gating.",
+  "author": { "name": "thisis-romar" },
+  "keywords": ["youtube", "transcript", "captions", "subtitles", "screenshots", "frames", "pdf", "yt-dlp", "po-token", "ffmpeg"],
+  "license": "MIT"
+}

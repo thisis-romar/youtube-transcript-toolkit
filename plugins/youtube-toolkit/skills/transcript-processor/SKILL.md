@@ -6,7 +6,7 @@ description: Clean up and structure a raw video transcript. Use when the user pa
 # Transcript Processor
 
 Turn a raw, messy transcript into clean readable text. Deterministic, stdlib-only,
-no internet — safe for the Claude.ai code-execution sandbox on any egress setting.
+no internet — safe for any sandbox regardless of egress settings.
 
 ## What it fixes
 - Rolling auto-caption duplication (each line repeating the tail of the previous).
@@ -17,16 +17,16 @@ no internet — safe for the Claude.ai code-execution sandbox on any egress sett
 
 ## How to run
 ```bash
-python3 scripts/process_transcript.py INPUT [--mode MODE] [--summary N] [--out FILE]
-cat transcript.txt | python3 scripts/process_transcript.py
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/process_transcript.py INPUT [--mode MODE] [--summary N] [--out FILE]
+cat transcript.txt | python3 ${CLAUDE_PLUGIN_ROOT}/scripts/process_transcript.py
 ```
 Modes: `clean` (default), `timestamped`, `sentences`, `paragraphs`.
 
 ## Workflow for Claude
-1. Write the user's raw transcript to `raw.txt`.
+1. Write the user's raw transcript (or the output of **youtube-transcript**) to `raw.txt`.
 2. Run `process_transcript.py raw.txt --mode clean` for clean paragraphs.
-3. Use `--mode timestamped` if user wants timestamps.
-4. Summarize the cleaned output yourself — far better than `--summary` heuristic.
+3. Use `--mode timestamped` if the user wants timestamps.
+4. Summarize the cleaned output yourself — far better than the `--summary` heuristic.
 
 ## Exit codes
 `0` success · `1` empty or unparseable input.

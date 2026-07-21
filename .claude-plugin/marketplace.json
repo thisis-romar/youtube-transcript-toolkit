@@ -3,10 +3,10 @@
   "owner": { "name": "thisis-romar", "email": "admin+claude-plugins@emblemprojects.com" },
   "plugins": [
     {
-      "name": "youtube-transcript",
-      "source": "./plugins/youtube-transcript",
-      "description": "Fetch the spoken transcript of any YouTube video or Short inside Claude Code.",
-      "version": "1.0.0",
+      "name": "youtube-toolkit",
+      "source": "./plugins/youtube-toolkit",
+      "description": "Fetch YouTube transcripts, clean/segment them, and capture timestamped screenshots into a recap PDF — with an auto-wired access layer (deno + EJS solver, bgutil po_token provider, cookies/proxy) that survives 403/DRM, n-challenge, and 429 gating.",
+      "version": "2.0.0",
       "author": { "name": "thisis-romar" }
     }
   ]
